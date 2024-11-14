@@ -1,4 +1,15 @@
+import { PlusIcon } from 'lucide-react'
+import { useState } from 'react';
+
+
 function App() {
+    const [lists, setLists] = useState([]);
+    async function onListClick(listId) {
+        const query = new URLSearchParams();
+        query.set("listId", listId);
+        navigate(`/list?${query.toString()}`);
+    }
+
     return (
         <div className="w-screen h-screen bg-slate-300">
             <div className="flex flex-row justify-center p-5 bg-slate-800 text-white">
@@ -31,6 +42,9 @@ function App() {
                         REMOVER
                     </button>
                 </div>
+                <button className="mx-auto my-5 text-white text-5xl bg-slate-700 rounded-full">
+                    <PlusIcon className='w-16 h-16 m-2'/>
+                </button>
             </section>
         </div>
     );
