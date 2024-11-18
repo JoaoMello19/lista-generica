@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import {
-    createList,
+    insertList,
     getList,
     getAllLists,
     addItemToList,
@@ -23,8 +23,15 @@ app.get("/", (req, res) => {
     res.json({ status: 200, message: "API padrão" });
 });
 
-app.post("/savelist", (req, res) => {
-    res.json({ status: 200, message: "API de inserção" });
+app.post("/insertlist", async (req, res) => {
+    const listTitle = req.body.listTitle;
+    const { success, message, data } = await insertList(listTitle);
+
+    res.json({
+        status: success ? 200 : 400,
+        message,
+        data,
+    });
 });
 
 app.post("/loadlist", (req, res) => {
@@ -90,7 +97,7 @@ app.get("/insertdummy", (req, res) => {
             success,
             message,
             data: newList,
-        } = await createList(list.title);
+        } = await insertList(list.title);
         if (success) {
             list.items.forEach(async (item) => {
                 const { message, data } = await addItemToList(

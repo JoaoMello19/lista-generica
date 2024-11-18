@@ -29,7 +29,7 @@ const List = model("List", listSchema);
 
 /** FUNÇÕES SOBRE O MODEL ListItem */
 
-async function createListItem(title) {
+async function insertListItem(title) {
     try {
         const newItem = new ListItem({ title });
         await newItem.save();
@@ -45,7 +45,7 @@ async function deleteListItem(id) {
 
 
 /** FUNÇÕES SOBRE O MODEL List */
-async function createList(title) {
+async function insertList(title) {
     try {
         const newList = new List({ title });
         await newList.save();
@@ -97,9 +97,9 @@ async function dropDB() {
 }
 
 export {
-    createListItem,
+    insertListItem,
     deleteListItem,
-    createList,
+    insertList,
     getList,
     getAllLists,
     addItemToList,
