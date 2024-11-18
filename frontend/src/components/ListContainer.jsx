@@ -1,7 +1,7 @@
 import ListBanner from "./ListBanner";
 import { useState } from "react";
 
-export default function ListContainer({ lists, insertList }) {
+export default function ListContainer({ lists, insertList, deleteList }) {
     const [showInput, setShowInput] = useState(false);
     const [newListTitle, setNewListTitle] = useState("");
 
@@ -14,7 +14,11 @@ export default function ListContainer({ lists, insertList }) {
     return (
         <section className="mx-auto my-3 flex flex-col gap-2 w-2/5 h-max">
             {lists.map((list) => (
-                <ListBanner key={list._id} list={list} />
+                <ListBanner
+                    key={list._id}
+                    list={list}
+                    deleteList={deleteList}
+                />
             ))}
 
             {showInput && (
@@ -22,8 +26,6 @@ export default function ListContainer({ lists, insertList }) {
                     <input
                         className="m-1 p-2 w-full font-bold text-xl text-black text-left bg-transparent outline-none border-slate-600 "
                         type="text"
-                        name="txt-new-list"
-                        id="txt-new-list"
                         placeholder="Nome da lista"
                         value={newListTitle}
                         onChange={(e) => setNewListTitle(e.target.value)}

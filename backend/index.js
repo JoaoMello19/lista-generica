@@ -1,10 +1,13 @@
 import cors from "cors";
 import express from "express";
 import {
+    insertListItem,
+    deleteListItem,
     insertList,
     getList,
     getAllLists,
     addItemToList,
+    deleteList,
     dropDB,
 } from "./database.js";
 
@@ -49,12 +52,26 @@ app.post("/loadlist", (req, res) => {
 
 app.post("/load", async (req, res) => {
     const { success, message, data } = await getAllLists();
-    if (success) res.json({ status: 200, message, data });
-    else res.json({ status: 400, message, data: null });
+    res.json({
+        status: success ? 200 : 400,
+        message,
+        data,
+    });
 });
 
-app.delete("/deletelist", (req, res) => {
-    res.json({ status: 200, message: "API de remoçao" });
+app.delete("/deletelist", async (req, res) => {
+    const listId = req.body.listId;
+    if (!listId)
+        return res.json({
+            status: 400,
+            message: "O parâmetro 'listId' é obrigatório e deve ser inteiro",
+        });
+
+    const { success, message } = await deleteList(listId);
+    res.json({
+        status: success ? 200 : 400,
+        message,
+    });
 });
 
 /** ROTAS DE DEV */
