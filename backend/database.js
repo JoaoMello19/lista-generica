@@ -2,10 +2,7 @@ import { connect, Schema, model } from "mongoose";
 
 
 /** CONEXÃO COM O BANCO DE DADOS */
-connect("mongodb://localhost:27017/listadb", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+connect("mongodb://localhost:27017/listadb")
     .then(() => {
         console.log("MongoDB connected");
     })
@@ -38,7 +35,7 @@ async function createListItem(title) {
         await newItem.save();
         return { success: true, message: "Item da lista criada com sucesso", data: newItem };
     } catch (err) {
-        return { success: false, message: "Erro ao criar item da lista:" + err.message, data: null };
+        return { success: false, message: "Erro ao criar item da lista: " + err.message, data: null };
     }
 }
 
@@ -54,7 +51,7 @@ async function createList(title) {
         await newList.save();
         return { success: true, message: "Lista criada com sucesso", data: newList };
     } catch (err) {
-        return { success: false, message: "Erro ao criar lista:" + err.message, data: null };
+        return { success: false, message: "Erro ao criar lista: " + err.message, data: null };
     }
 }
 
@@ -63,6 +60,11 @@ async function getList(id) {
     if (!list)
         return { success: false, message: `Lista(${id}) não encontrada`, data: null };
     return { success: true, message: "Lista retornada sucesso", data: list };
+}
+
+async function getAllLists() {
+    const lists = await List.find({});
+    return { success: true, message: "Listas retornadas com sucesso", data: lists };
 }
 
 async function addItemToList(itemTitle, listId) {
@@ -78,7 +80,7 @@ async function addItemToList(itemTitle, listId) {
 
         return { success: true, message: "Item adicionado a lista com sucesso", data: updatedList };
     } catch (err) {
-        return { success: false, message: "Erro ao adicionar item à lista:" + err.message, data: null };
+        return { success: false, message: "Erro ao adicionar item à lista: " + err.message, data: null };
     }
 }
 
@@ -86,11 +88,21 @@ async function deleteList(id) {
     await List.findByIdAndDelete(id);
 }
 
-export default {
+/** FUNCÕES DE DEV */
+
+async function dropDB() {
+    await ListItem.deleteMany({});
+    await List.deleteMany({});
+    return { success: true, message: "Banco de dados limpo!" };
+}
+
+export {
     createListItem,
     deleteListItem,
     createList,
     getList,
+    getAllLists,
     addItemToList,
     deleteList,
+    dropDB
 };
