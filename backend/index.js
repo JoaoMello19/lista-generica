@@ -1,8 +1,6 @@
 import cors from "cors";
 import express from "express";
 import {
-    insertListItem,
-    deleteListItem,
     insertList,
     getList,
     getAllLists,
@@ -37,20 +35,22 @@ app.post("/insertlist", async (req, res) => {
     });
 });
 
-app.post("/loadlist", (req, res) => {
-    const listId = req.params.listId;
-    if (!listId || !Number.isInteger(listId))
+app.post("/getlist", async (req, res) => {
+    const listId = req.body.listId;
+    console.log(listId);
+    if (!listId)
         return res.json({
             status: 400,
-            message: "O parâmetro 'listId' é obrigatório e deve ser inteiro",
+            message: "O parâmetro 'listId' é obrigatório!",
         });
 
-    const { success, message, data } = getList(listId);
+    const { success, message, data } = await getList(listId);
+    console.log(success, message, data);
     if (success) res.json({ status: 200, message, data });
     else res.json({ status: 400, message, data: null });
 });
 
-app.post("/load", async (req, res) => {
+app.post("/getall", async (req, res) => {
     const { success, message, data } = await getAllLists();
     res.json({
         status: success ? 200 : 400,
@@ -59,12 +59,29 @@ app.post("/load", async (req, res) => {
     });
 });
 
+app.put("/additem", async (req, res) => {
+    const listId = req.body.listId;
+    const itemTitle = req.body.itemTitle;
+    if (!listId || !itemTitle)
+        return res.json({
+            status: 400,
+            message: "Os parâmetros 'listId' e 'itemTitle' são obrigatórios!",
+        });
+
+    const { success, message, data } = await addItemToList(listId, itemTitle);
+    res.json({
+        status: success ? 200 : 400,
+        message,
+        data
+    });
+});
+
 app.delete("/deletelist", async (req, res) => {
     const listId = req.body.listId;
     if (!listId)
         return res.json({
             status: 400,
-            message: "O parâmetro 'listId' é obrigatório e deve ser inteiro",
+            message: "O parâmetro 'listId' é obrigatório!",
         });
 
     const { success, message } = await deleteList(listId);
@@ -133,8 +150,6 @@ app.get("/load", async (req, res) => {
     if (success) res.json({ status: 200, message, data });
     else res.json({ status: 400, message, data: null });
 });
-
-app.get("/delete", async (req, res) => {});
 
 app.get("/dropdb", async (req, res) => {
     await dropDB();

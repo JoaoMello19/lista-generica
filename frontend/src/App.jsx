@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import ListContainer from "./components/ListContainer";
+import ListContainer from "./components/lists/ListContainer";
+import TopBanner from "./components/TopBanner";
 
 function App() {
     const [lists, setLists] = useState([]);
@@ -16,7 +17,7 @@ function App() {
         fetchLists();
     }, []);
 
-    function insertList(listTitle) {
+    async function insertList(listTitle) {
         async function _insertList() {
             listTitle = listTitle.trim();
             if (!listTitle) return;
@@ -32,10 +33,10 @@ function App() {
             if (data.status === 200) setLists([...lists, data.data]);
             else window.alert(data.message);
         }
-        _insertList();
+        await _insertList();
     }
 
-    function deleteList(listId) {
+    async function deleteList(listId) {
         async function _deleteList(listId) {
             const response = await fetch(`http://localhost:3000/deletelist`, {
                 method: "DELETE",
@@ -49,14 +50,12 @@ function App() {
                 setLists(lists.filter((list) => list._id !== listId));
             else window.alert(data.message);
         }
-        _deleteList(listId);
+        await _deleteList(listId);
     }
 
     return (
         <div className="w-screen h-screen bg-slate-300">
-            <div className="flex flex-row justify-center p-5 bg-slate-800 text-white">
-                <h1 className="m-auto text-2xl font-bold">Meu App de Listas</h1>
-            </div>
+            <TopBanner title="Meu App de Listas" />
             <ListContainer
                 lists={lists}
                 insertList={insertList}

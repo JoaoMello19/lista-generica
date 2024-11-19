@@ -1,4 +1,5 @@
 import { connect, Schema, model } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 /** CONEXÃO COM O BANCO DE DADOS */
 connect("mongodb://localhost:27017/listadb")
@@ -10,49 +11,28 @@ connect("mongodb://localhost:27017/listadb")
     });
 
 /** DEFINIÇÃO DOS SCHEMAS E MODELS */
-const listItemSchema = new Schema({
-    title: { type: String, required: true },
-    done: { type: Boolean, default: false },
-});
-
-const ListItem = model("ListItem", listItemSchema);
-
 const listSchema = new Schema({
+    listId: { type: String, required: true, unique: true }, // ID único para o item
     title: { type: String, required: true },
-    items: { type: [listItemSchema], required: false },
+    items: [
+        {
+            itemId: { type: String, required: true, unique: true }, // ID único para o item
+            title: { type: String, required: true }, // Título do item
+            done: { type: Boolean, default: false }, // Status do item
+        },
+    ],
 });
 
 const List = model("List", listSchema);
 
-/** FUNÇÕES SOBRE O MODEL ListItem */
-
-async function insertListItem(title) {
-    try {
-        const newItem = new ListItem({ title });
-        await newItem.save();
-        return {
-            success: true,
-            message: "Item da lista criada com sucesso",
-            data: newItem,
-        };
-    } catch (err) {
-        return {
-            success: false,
-            message: "Erro ao criar item da lista: " + err.message,
-            data: null,
-        };
-    }
-}
-
-async function deleteListItem(id) {
-    await ListItem.findByIdAndDelete(id);
-}
-
 /** FUNÇÕES SOBRE O MODEL List */
 async function insertList(title) {
     try {
-        const newList = new List({ title });
+        const listId = uuidv4();
+        console.log('ID gerado para nova lista:', listId);
+        const newList = new List({ listId, title, items: [] });
         await newList.save();
+
         return {
             success: true,
             message: "Lista criada com sucesso",
@@ -67,41 +47,59 @@ async function insertList(title) {
     }
 }
 
-async function getList(id) {
-    const list = await List.findById(id);
-    if (!list)
-        return {
-            success: false,
-            message: `Lista(${id}) não encontrada`,
-            data: null,
-        };
-    return { success: true, message: "Lista retornada sucesso", data: list };
-}
-
-async function getAllLists() {
-    const lists = await List.find({});
-    return {
-        success: true,
-        message: "Listas retornadas com sucesso",
-        data: lists,
-    };
-}
-
-async function addItemToList(itemTitle, listId) {
+async function getList(listId) {
     try {
-        const { success } = await createListItem(itemTitle);
-        if (!success) throw new Error(data);
-
-        const updatedList = await List.findByIdAndUpdate(
-            listId,
-            { $push: { items: { title: itemTitle } } },
-            { new: true }
-        );
+        const list = await List.findOne({ listId });
+        if (!list) throw new Error(`Lista(${listId}) não encontrada`);
 
         return {
             success: true,
+            message: "Lista retornada sucesso",
+            data: list,
+        };
+    } catch (err) {
+        return {
+            success: false,
+            message: "Erro ao buscar lista: " + err.message,
+            data: null,
+        };
+    }
+}
+
+async function getAllLists() {
+    try {
+        const allLists = await List.find({});
+        return {
+            success: true,
+            message: `${allLists.length} listas retornadas com sucesso`,
+            data: allLists,
+        };
+    } catch (err) {
+        return {
+            success: false,
+            message: "Erro ao buscar todas as listas: " + err.message,
+            data: null,
+        };
+    }
+}
+
+async function addItemToList(listId, itemTitle) {
+    try {
+        const list = await List.findOne({ listId });
+        if (!list) throw new Error(`Lista(${listId}) não encontrada`);
+
+        const newItem = {
+            itemId: uuidv4(),
+            title: itemTitle,
+            done: false,
+        };
+
+        list.items.push(newItem);
+        await list.save();
+        return {
+            success: true,
             message: "Item adicionado a lista com sucesso",
-            data: updatedList,
+            data: newItem,
         };
     } catch (err) {
         return {
@@ -112,36 +110,28 @@ async function addItemToList(itemTitle, listId) {
     }
 }
 
-async function deleteList(id) {
+async function deleteList(listId) {
     try {
-        await List.findByIdAndDelete(id);
+        await List.deleteOne({ listId });
+        return {
+            success: true,
+            message: "Lista excluída com sucesso!",
+            data: null,
+        };
     } catch (err) {
         return {
             success: false,
             message: "Erro ao excluir lista: " + err.message,
+            data: null,
         };
     }
-    return {
-        success: true,
-        message: "Lista excluída com sucesso!",
-    };
 }
 
 /** FUNCÕES DE DEV */
 
 async function dropDB() {
-    await ListItem.deleteMany({});
     await List.deleteMany({});
     return { success: true, message: "Banco de dados limpo!" };
 }
 
-export {
-    insertListItem,
-    deleteListItem,
-    insertList,
-    getList,
-    getAllLists,
-    addItemToList,
-    deleteList,
-    dropDB,
-};
+export { insertList, getList, getAllLists, addItemToList, deleteList, dropDB };
