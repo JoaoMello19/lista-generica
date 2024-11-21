@@ -54,7 +54,7 @@ function App() {
     }
 
     return (
-        <div className="w-screen h-screen bg-slate-300">
+        <div className="w-screen h-screen bg-blue-50">
             <TopBanner title="Meu App de Listas" />
             <ListContainer
                 lists={lists}

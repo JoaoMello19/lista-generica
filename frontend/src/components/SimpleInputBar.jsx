@@ -14,29 +14,11 @@ export default function SimpleInputBar({
                 onChange={onChange}
             />
             <button
-                className="py-2 px-4 rounded-md rounded-l-none font-bold bg-slate-700 text-white"
+                className="py-2 px-4 rounded-md rounded-l-none font-bold bg-green-600 text-white"
                 onClick={onClick}
             >
                 ADICIONAR
             </button>
         </div>
     );
-
-    /*
-    <SimpleInputBar
-        placeholder="Nome da lista"
-        value={newListTitle}
-        onChange={(e) => setNewListTitle(e.target.value)}
-        onClick={addList}
-    />
-
-
-    <SimpleInputBar
-        placeholder="Novo item"
-        value={newItemTitle}
-        onChange={(e) => setNewItemTitle(e.target.value)}
-        onClick={addItem}
-    />
-    
-    */
 }

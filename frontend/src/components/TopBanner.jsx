@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 export default function TopBanner({ title, showBackButton }) {
     const navigate = useNavigate();
     return (
-        <div className="relative flex items-center justify-center p-5 bg-slate-800 text-white">
+        <div className="relative flex items-center justify-center p-5 bg-blue-900 text-white">
             {showBackButton && (
                 <button
-                    className="absolute max-w-[20%] aspect-[3/2] left-5 flex flex-row gap-2 justify-center items-center px-3 rounded-md text-black bg-slate-50"
+                    className="absolute max-w-[20%] aspect-[3/2] left-5 flex flex-row gap-2 justify-center items-center px-3 rounded-md text-white bg-blue-500"
                     onClick={() => {
                         navigate(-1);
                     }}

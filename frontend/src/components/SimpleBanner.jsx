@@ -10,7 +10,7 @@ export default function SimpleBanner({className, buttonClassName, onBannerClick,
                 {bannerTitle}
             </button>
             <button
-                className="rounded-md p-2 bg-slate-100"
+                className="rounded-md p-2 text-white bg-red-500"
                 onClick={onButtonClick}
             >
                 <TrashIcon />

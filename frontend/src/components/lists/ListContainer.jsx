@@ -8,6 +8,7 @@ export default function ListContainer({ lists, insertList, deleteList }) {
     const [newListTitle, setNewListTitle] = useState("");
 
     async function addList() {
+        if (!newListTitle.trim()) return;
         await insertList(newListTitle);
         setNewListTitle("");
         setShowInput(false);
@@ -33,7 +34,7 @@ export default function ListContainer({ lists, insertList, deleteList }) {
             )}
 
             <button
-                className="mx-auto mt-5 py-2 px-4 font-bold text-white text-xl bg-slate-700 rounded-md"
+                className="mx-auto mt-5 py-2 px-4 font-bold text-white text-xl bg-green-600 rounded-md"
                 onClick={() => {
                     setShowInput(true);
                 }}

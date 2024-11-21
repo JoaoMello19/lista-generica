@@ -4,7 +4,7 @@ import SimpleBanner from "../SimpleBanner";
 export default function ListItemBanner({ listItem, toggleItem, deleteItem }) {
     return (
         <SimpleBanner
-            className="py-0 bg-slate-100 border-2 border-slate-800"
+            className="bg-white"
             buttonClassName={listItem.done && "line-through"}
             onBannerClick={() => {
                 toggleItem(listItem.itemId);

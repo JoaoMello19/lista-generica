@@ -7,6 +7,7 @@ export default function ListItemContainer({ list, insertItem, toggleItem, delete
     const [newItemTitle, setNewItemTitle] = useState("");
 
     async function addItem() {
+        if (!newItemTitle.trim()) return;
         await insertItem(list.listId, newItemTitle);
         setNewItemTitle("");
     }

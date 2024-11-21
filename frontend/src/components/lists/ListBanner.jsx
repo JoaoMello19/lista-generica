@@ -14,8 +14,8 @@ export default function ListBanner({ list, deleteList }) {
 
     return (
         <SimpleBanner
-            className="bg-slate-600"
-            buttonClassName="text-white"
+            className="bg-amber-400"
+            buttonClassName="text-amber-800"
             onBannerClick={onBannerClick}
             bannerTitle={`${list.title} (${length} ${
                 length === 1 ? "item" : "itens"
