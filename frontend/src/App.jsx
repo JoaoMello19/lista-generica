@@ -8,7 +8,7 @@ function App() {
     // carregamento da lista pelo backend
     useEffect(() => {
         async function fetchLists() {
-            const response = await fetch("http://localhost:3000/load", {
+            const response = await fetch("http://localhost:3000/getall", {
                 method: "POST",
             });
             const data = await response.json();
@@ -47,7 +47,7 @@ function App() {
             });
             const data = await response.json();
             if (data.status === 200)
-                setLists(lists.filter((list) => list._id !== listId));
+                setLists(lists.filter((list) => list.listId !== listId));
             else window.alert(data.message);
         }
         await _deleteList(listId);

@@ -3,11 +3,11 @@ import SimpleContainer from "../SimpleContainer";
 import ListItemBanner from "./ListItemBanner";
 import SimpleInputBar from "../SimpleInputBar";
 
-export default function ListItemContainer({ list, insertItem, deleteItem }) {
+export default function ListItemContainer({ list, insertItem, toggleItem, deleteItem }) {
     const [newItemTitle, setNewItemTitle] = useState("");
 
     async function addItem() {
-        await insertItem(list._id, newItemTitle);
+        await insertItem(list.listId, newItemTitle);
         setNewItemTitle("");
     }
 
@@ -16,8 +16,9 @@ export default function ListItemContainer({ list, insertItem, deleteItem }) {
             {list?.items?.map((item) => {
                 return (
                     <ListItemBanner
-                        key={item._id || Math.random()}
+                        key={item.itemId}
                         listItem={item}
+                        toggleItem={toggleItem}
                         deleteItem={deleteItem}
                     />
                 );

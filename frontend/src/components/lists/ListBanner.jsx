@@ -6,18 +6,22 @@ export default function ListBanner({ list, deleteList }) {
     const navigate = useNavigate();
     function onBannerClick() {
         const query = new URLSearchParams();
-        query.set("listId", list._id);
+        query.set("listId", list.listId);
         navigate(`/list?${query.toString()}`);
     }
+
+    const length = list.items.length;
 
     return (
         <SimpleBanner
             className="bg-slate-600"
             buttonClassName="text-white"
             onBannerClick={onBannerClick}
-            bannerTitle={`${list.title} (${list.items.length} itens)`}
+            bannerTitle={`${list.title} (${length} ${
+                length === 1 ? "item" : "itens"
+            })`}
             onButtonClick={() => {
-                deleteList(list._id);
+                deleteList(list.listId);
             }}
         />
     );

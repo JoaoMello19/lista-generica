@@ -4,8 +4,10 @@ import {
     insertList,
     getList,
     getAllLists,
-    addItemToList,
     deleteList,
+    addItemToList,
+    toggleItem,
+    deleteItem,
     dropDB,
 } from "./database.js";
 
@@ -59,23 +61,6 @@ app.post("/getall", async (req, res) => {
     });
 });
 
-app.put("/additem", async (req, res) => {
-    const listId = req.body.listId;
-    const itemTitle = req.body.itemTitle;
-    if (!listId || !itemTitle)
-        return res.json({
-            status: 400,
-            message: "Os parâmetros 'listId' e 'itemTitle' são obrigatórios!",
-        });
-
-    const { success, message, data } = await addItemToList(listId, itemTitle);
-    res.json({
-        status: success ? 200 : 400,
-        message,
-        data
-    });
-});
-
 app.delete("/deletelist", async (req, res) => {
     const listId = req.body.listId;
     if (!listId)
@@ -91,7 +76,54 @@ app.delete("/deletelist", async (req, res) => {
     });
 });
 
-/** ROTAS DE DEV */
+app.put("/insertitem", async (req, res) => {
+    const { listId, itemTitle } = req.body;
+    if (!listId || !itemTitle)
+        return res.json({
+            status: 400,
+            message: "Os parâmetros 'listId' e 'itemTitle' são obrigatórios!",
+        });
+
+    const { success, message, data } = await addItemToList(listId, itemTitle);
+    res.json({
+        status: success ? 200 : 400,
+        message,
+        data,
+    });
+});
+
+app.put("/toggleitem", async (req, res) => {
+    const { listId, itemId } = req.body;
+    if (!listId || !itemId)
+        return res.json({
+            status: 400,
+            message: "Os parâmetros 'listId' e 'itemId' são obrigatórios!",
+        });
+
+    const { success, message, data } = await toggleItem(listId, itemId);
+    res.json({
+        status: success ? 200 : 400,
+        message,
+        data,
+    });
+});
+
+app.delete("/deleteitem", async (req, res) => {
+    const { listId, itemId } = req.body;
+    if (!listId || !itemId)
+        return res.json({
+            status: 400,
+            message: "Os parâmetros 'listId' e 'itemId' são obrigatórios!",
+        });
+
+    const { success, message } = await deleteItem(listId, itemId);
+    res.json({
+        status: success ? 200 : 400,
+        message,
+    });
+});
+
+/** ============================== ROTAS DE DEV ============================== */
 app.get("/insertdummy", (req, res) => {
     const listsData = [
         {

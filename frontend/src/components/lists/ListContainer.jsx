@@ -17,7 +17,7 @@ export default function ListContainer({ lists, insertList, deleteList }) {
         <SimpleContainer>
             {lists.map((list) => (
                 <ListBanner
-                    key={list._id}
+                    key={list.listId}
                     list={list}
                     deleteList={deleteList}
                 />

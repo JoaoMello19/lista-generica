@@ -12,13 +12,13 @@ connect("mongodb://localhost:27017/listadb")
 
 /** DEFINIÇÃO DOS SCHEMAS E MODELS */
 const listSchema = new Schema({
-    listId: { type: String, required: true, unique: true }, // ID único para o item
-    title: { type: String, required: true },
+    listId: { type: String, required: true, unique: true },
+    title: { type: String, required: true, trim: true, minlength: 1 },
     items: [
         {
-            itemId: { type: String, required: true, unique: true }, // ID único para o item
-            title: { type: String, required: true }, // Título do item
-            done: { type: Boolean, default: false }, // Status do item
+            itemId: { type: String, required: true, sparse: true },
+            title: { type: String, required: true },
+            done: { type: Boolean, default: false },
         },
     ],
 });
@@ -29,8 +29,11 @@ const List = model("List", listSchema);
 async function insertList(title) {
     try {
         const listId = uuidv4();
-        console.log('ID gerado para nova lista:', listId);
-        const newList = new List({ listId, title, items: [] });
+        console.log("ID gerado para nova lista:", listId);
+        const newList = new List({
+            listId,
+            title,
+        });
         await newList.save();
 
         return {
@@ -83,6 +86,23 @@ async function getAllLists() {
     }
 }
 
+async function deleteList(listId) {
+    try {
+        await List.deleteOne({ listId });
+        return {
+            success: true,
+            message: "Lista excluída com sucesso!",
+            data: null,
+        };
+    } catch (err) {
+        return {
+            success: false,
+            message: "Erro ao excluir lista: " + err.message,
+            data: null,
+        };
+    }
+}
+
 async function addItemToList(listId, itemTitle) {
     try {
         const list = await List.findOne({ listId });
@@ -110,18 +130,51 @@ async function addItemToList(listId, itemTitle) {
     }
 }
 
-async function deleteList(listId) {
+async function toggleItem(listId, itemId) {
     try {
-        await List.deleteOne({ listId });
+        const list = await List.findOne({ listId, "items.itemId": itemId });
+        if (!list) throw new Error(`Lista(${listId}) não encontrado`);
+
+        const item = list.items.find((item) => item.itemId === itemId);
+        if (!item) throw new Error(`Item(${itemId}) não encontrado`);
+
+        await List.updateOne(
+            { listId, "items.itemId": itemId }, // Filtro
+            { $set: { "items.$.done": !item.done } } // Alterna o valor
+        );
+
         return {
             success: true,
-            message: "Lista excluída com sucesso!",
+            message: "Item marcado como concluído com sucesso!",
+            data: list.items.find((item) => item.itemId === itemId),
+        };
+    } catch (err) {
+        return {
+            success: false,
+            message: "Erro ao marcar item como concluído: " + err.message,
+            data: null,
+        };
+    }
+}
+
+async function deleteItem(listId, itemId) {
+    try {
+        const list = await List.findOneAndUpdate(
+            { listId },
+            { $pull: { items: { itemId } } },
+            { new: true }
+        );
+        if (!list) throw new Error(`Item(${itemId}) não encontrado`);
+
+        return {
+            success: true,
+            message: "Item excluído da lista com sucesso!",
             data: null,
         };
     } catch (err) {
         return {
             success: false,
-            message: "Erro ao excluir lista: " + err.message,
+            message: "Erro ao excluir item da lista: " + err.message,
             data: null,
         };
     }
@@ -134,4 +187,13 @@ async function dropDB() {
     return { success: true, message: "Banco de dados limpo!" };
 }
 
-export { insertList, getList, getAllLists, addItemToList, deleteList, dropDB };
+export {
+    insertList,
+    getList,
+    getAllLists,
+    deleteList,
+    addItemToList,
+    toggleItem,
+    deleteItem,
+    dropDB,
+};
