@@ -7,16 +7,16 @@ export default function TopBanner({ title, showBackButton }) {
         <div className="relative flex items-center justify-center p-5 bg-slate-800 text-white">
             {showBackButton && (
                 <button
-                    className="absolute left-5 flex flex-row gap-2"
+                    className="absolute max-w-[20%] aspect-[3/2] left-5 flex flex-row gap-2 justify-center items-center px-3 rounded-md text-black bg-slate-50"
                     onClick={() => {
                         navigate(-1);
                     }}
                 >
-                    <MoveLeftIcon />
-                    <span>voltar</span>
+                    <MoveLeftIcon className="h-12 w-12" />
+                    {/* <span className="text-xl font-bold">voltar</span> */}
                 </button>
             )}
-            <h1 className="m-auto text-2xl font-bold text-center">{title}</h1>
+            <h1 className="m-auto max-w-[50%] text-2xl font-bold text-center overflow-hidden text-ellipsis whitespace-nowrap">{title}</h1>
         </div>
     );
 }

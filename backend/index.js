@@ -22,11 +22,29 @@ app.use(
 
 app.use(express.json());
 
+function checkParams(params) {
+    return (req, res, next) => {
+        try {
+            params.forEach((param) => {
+                if (!req.body[param])
+                    throw new Error(`O parâmetro '${param}' é obrigatório!`);
+            });
+            next();
+        } catch (err) {
+            return res.json({
+                status: 400,
+                message: err.message,
+                data: null,
+            });
+        }
+    };
+}
+
 app.get("/", (req, res) => {
     res.json({ status: 200, message: "API padrão" });
 });
 
-app.post("/insertlist", async (req, res) => {
+app.post("/insertlist", checkParams(["listTitle"]), async (req, res) => {
     const listTitle = req.body.listTitle;
     const { success, message, data } = await insertList(listTitle);
 
@@ -37,17 +55,9 @@ app.post("/insertlist", async (req, res) => {
     });
 });
 
-app.post("/getlist", async (req, res) => {
+app.post("/getlist", checkParams(["listId"]), async (req, res) => {
     const listId = req.body.listId;
-    console.log(listId);
-    if (!listId)
-        return res.json({
-            status: 400,
-            message: "O parâmetro 'listId' é obrigatório!",
-        });
-
     const { success, message, data } = await getList(listId);
-    console.log(success, message, data);
     if (success) res.json({ status: 200, message, data });
     else res.json({ status: 400, message, data: null });
 });
@@ -61,14 +71,8 @@ app.post("/getall", async (req, res) => {
     });
 });
 
-app.delete("/deletelist", async (req, res) => {
+app.delete("/deletelist", checkParams(["listId"]), async (req, res) => {
     const listId = req.body.listId;
-    if (!listId)
-        return res.json({
-            status: 400,
-            message: "O parâmetro 'listId' é obrigatório!",
-        });
-
     const { success, message } = await deleteList(listId);
     res.json({
         status: success ? 200 : 400,
@@ -76,14 +80,8 @@ app.delete("/deletelist", async (req, res) => {
     });
 });
 
-app.put("/insertitem", async (req, res) => {
+app.put("/insertitem", checkParams(["listId", "itemTitle"]), async (req, res) => {
     const { listId, itemTitle } = req.body;
-    if (!listId || !itemTitle)
-        return res.json({
-            status: 400,
-            message: "Os parâmetros 'listId' e 'itemTitle' são obrigatórios!",
-        });
-
     const { success, message, data } = await addItemToList(listId, itemTitle);
     res.json({
         status: success ? 200 : 400,
@@ -92,14 +90,8 @@ app.put("/insertitem", async (req, res) => {
     });
 });
 
-app.put("/toggleitem", async (req, res) => {
+app.put("/toggleitem", checkParams(["listId", "itemId"]), async (req, res) => {
     const { listId, itemId } = req.body;
-    if (!listId || !itemId)
-        return res.json({
-            status: 400,
-            message: "Os parâmetros 'listId' e 'itemId' são obrigatórios!",
-        });
-
     const { success, message, data } = await toggleItem(listId, itemId);
     res.json({
         status: success ? 200 : 400,
@@ -108,14 +100,8 @@ app.put("/toggleitem", async (req, res) => {
     });
 });
 
-app.delete("/deleteitem", async (req, res) => {
+app.delete("/deleteitem", checkParams(["listId", "itemId"]), async (req, res) => {
     const { listId, itemId } = req.body;
-    if (!listId || !itemId)
-        return res.json({
-            status: 400,
-            message: "Os parâmetros 'listId' e 'itemId' são obrigatórios!",
-        });
-
     const { success, message } = await deleteItem(listId, itemId);
     res.json({
         status: success ? 200 : 400,
@@ -167,8 +153,8 @@ app.get("/insertdummy", (req, res) => {
         if (success) {
             list.items.forEach(async (item) => {
                 const { message, data } = await addItemToList(
-                    item.title,
-                    newList._id
+                    newList.listId,
+                    item.title
                 );
             });
         }
