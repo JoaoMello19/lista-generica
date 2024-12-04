@@ -2,6 +2,8 @@ const express = require("express");
 const session = require("express-session");
 
 const { sequelize } = require("./database/models");
+const listsRoutes = require("./routes/listsRoutes");
+const itemsRoutes = require("./routes/itemsRoutes");
 
 const PORT = 4000;
 
@@ -29,13 +31,12 @@ app.use(
     })
 );
 
+app.use("/lists", listsRoutes);
+app.use("/items", itemsRoutes);
+
 app.get("/", (req, res) => {
     res.status(200).json({ message: "API padrão" });
 });
-
-app.get('/lists', (req, res) => {
-    res.status(200).json({message: 'Buscando no banco de dados...'})
-})
 
 app.listen(PORT, (error) => {
     if (error) {
