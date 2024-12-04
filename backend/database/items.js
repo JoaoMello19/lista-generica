@@ -35,8 +35,18 @@ async function updateItemStatus(itemId, done) {
         if (typeof done !== "boolean")
             throw new Error("Status do item inválido");
 
-        await Item.update({ done }, { where: { id: itemId } });
-        return { success: true };
+        const [rowsUpdated] = await Item.update(
+            { done },
+            { where: { id: itemId } }
+        );
+        if (rowsUpdated === 0)
+            throw new Error("Nenhum item encontrado com o ID fornecido.");
+
+        const updatedItem = await Item.findByPk(itemId);
+        return {
+            success: true,
+            data: updatedItem,
+        };
     } catch (error) {
         console.error("updateItemStatus:", error.message);
         return { success: false, error: error.message };

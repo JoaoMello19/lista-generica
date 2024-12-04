@@ -95,7 +95,6 @@ async function updateListById(listId, name, color) {
         return {
             success: true,
             data: updatedList,
-            message: "Lista atualizada com successo",
         };
     } catch (error) {
         console.error("updateListById:", error.message);
@@ -107,7 +106,7 @@ async function deleteListById(listId) {
     try {
         if (!validateListId(listId)) throw new Error("ID da lista inválido");
         await List.destroy({ where: { id: listId } });
-        return { success: true, message: "Lista deletada com sucesso" };
+        return { success: true };
     } catch (error) {
         console.error("deleteListById:", error.message);
         return { success: false, error: error.message };

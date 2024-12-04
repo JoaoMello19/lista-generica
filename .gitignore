@@ -23,7 +23,7 @@ yarn-error.log*
 build/
 dist/
 .cache/
-public/
+# public/
 out/
 
 # Diretórios e arquivos temporários

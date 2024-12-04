@@ -56,15 +56,13 @@ router.get("/:id", async (req, res) => {
         const id = parseInt(req.params.id);
         if (isNaN(id))
             res.status(400).json({
-                error: "O parametro 'id' é obrigatório e deve ser inteiro",
+                error: "O parâmetro 'id' é obrigatório e deve ser inteiro",
             });
 
         const { success, data, error } = await getListById(id);
         if (!success) throw new Error(error);
-
-        if (!data) {
+        if (!data)
             return res.status(404).json({ error: "Lista não encontrada." });
-        }
 
         res.status(200).json({ list: data });
     } catch (error) {
@@ -82,23 +80,20 @@ router.put("/:id", async (req, res) => {
             });
 
         const { name, color } = req.body;
-        if (!name && !color) {
+        if (!name && !color)
             return res.status(400).json({
                 error: "Informe pelo menos um campo para atualizar ('name' ou 'color').",
             });
-        }
 
-        const { success, data, error, message } = await updateListById(
-            id,
-            name,
-            color
-        );
+        const { success, data, error } = await updateListById(id, name, color);
         if (!success) throw new Error(error);
-        if (!data) {
+        if (!data)
             return res.status(404).json({ error: "Lista não encontrada." });
-        }
 
-        res.status(200).json({ list: data, message });
+        res.status(200).json({
+            list: data,
+            message: "Lista atualizada com sucesso",
+        });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);
         res.status(500).json({ error: error.message });
@@ -113,9 +108,9 @@ router.delete("/:id", async (req, res) => {
                 error: "O parametro 'id' é obrigatório e deve ser inteiro",
             });
 
-        const { success, error, message } = await deleteListById(id);
+        const { success, error } = await deleteListById(id);
         if (!success) throw new Error(error);
-        res.status(200).json({ message });
+        res.status(200).json({ message: "Lista deletada com sucesso" });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);
         res.status(500).json({ error: error.message });
