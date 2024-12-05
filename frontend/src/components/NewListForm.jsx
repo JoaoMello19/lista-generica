@@ -2,7 +2,7 @@ export default function NewListForm({ onSubmit }) {
     return (
         <form
             onSubmit={onSubmit}
-            className="w-[60vh] max-w-[90vw] mx-auto flex flex-row bg-white rounded-md"
+            className="w-[60vh] max-w-[95vw] mx-auto flex flex-row bg-white rounded-md"
         >
             <input
                 type="text"
@@ -13,7 +13,7 @@ export default function NewListForm({ onSubmit }) {
             />
             <button
                 type="submit"
-                className="w-1/5 px-4 py-2 rounded-r-md text-white font-bold bg-green-800"
+                className="w-1/5 min-w-fit px-4 py-2 rounded-r-md text-white font-bold bg-green-800"
             >
                 CRIAR
             </button>

@@ -11,12 +11,11 @@ const {
 } = require("../database/lists");
 
 router.post("/", async (req, res) => {
+    const { name, color } = req.body;
+
+    if (!name) res.status(400).json({ error: "O campo 'nome' é obrigatório" });
+
     try {
-        const { name, color } = req.body;
-
-        if (!name)
-            res.status(400).json({ error: "O campo 'nome' é obrigatório" });
-
         const { success, data, error } = await insertList(
             name,
             color || "#000000"

@@ -1,4 +1,4 @@
-const { List } = require("./models");
+const { List, Item } = require("./models");
 
 function validateListId(listId) {
     return listId && typeof listId === "number" && listId > 0;
@@ -15,7 +15,9 @@ async function insertList(name, color) {
         if (!validateColor(color)) throw new Error("Cor da lista inválida");
 
         const newList = await List.create({ name, color });
-        return { success: true, data: newList };
+        const list = await getListById(newList.id);
+
+        return { success: true, data: list };
     } catch (error) {
         console.error("insertList:", error.message);
         return { success: false, error: error.message };
