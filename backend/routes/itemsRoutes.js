@@ -22,8 +22,8 @@ router.post("/", async (req, res) => {
         if (!success) throw new Error(error);
 
         res.status(201).json({
-            message: "Item inserido com sucesso",
             item: data,
+            message: "Item inserido com sucesso",
         });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);
@@ -47,7 +47,10 @@ router.get("/:listid", async (req, res) => {
         if (!data)
             return res.status(404).json({ error: "Lista não encontrada." });
 
-        res.status(200).json({ items: data });
+        res.status(200).json({
+            items: data,
+            message: "Lista encontrada com sucesso",
+        });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);
         res.status(500).json({ error: error.message });
@@ -75,8 +78,8 @@ router.put("/:id", async (req, res) => {
             return res.status(404).json({ error: "Item não encontrado." });
 
         res.status(200).json({
-            message: "Status do item atualizado",
             item: data,
+            message: "Status do item atualizado",
         });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);
@@ -90,11 +93,12 @@ router.delete("/:id", async (req, res) => {
         const id = req.params.id;
         if (isNaN(id))
             res.status(400).json({
-                error: "O parametro 'id' é obrigatório e deve ser inteiro",
+                error: "O parâmetro 'id' é obrigatório e deve ser inteiro",
             });
 
         const { success, error } = await removeItemFromList(id);
         if (!success) throw new Error(error);
+        
         res.status(200).json({ message: "Item removido com sucesso" });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);

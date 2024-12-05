@@ -8,7 +8,7 @@ const List = sequelize.define("list", {
     },
     color: {
         type: DataTypes.STRING,
-        defaultValue: "#FFFFFF",
+        defaultValue: "#000000",
     },
 });
 

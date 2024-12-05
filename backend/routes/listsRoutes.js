@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
 
         const { success, data, error } = await insertList(
             name,
-            color || "#FFFFFF"
+            color || "#000000"
         );
         if (!success) throw new Error(error);
 
