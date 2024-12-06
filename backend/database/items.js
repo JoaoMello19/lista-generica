@@ -32,17 +32,25 @@ async function getAllItemsFromList(listId) {
 async function updateItemStatus(itemId, done) {
     try {
         if (!validateId(itemId)) throw new Error("ID da lista inválido");
-        if (typeof done !== "boolean")
-            throw new Error("Status do item inválido");
 
+        const item = await Item.findOne({
+            where: { id: itemId },
+            attributes: ["done"],
+        });
+        if (!item)
+            throw new Error("Nenhum item encontrado com o ID fornecido.");
+
+        const newDone = typeof done === "undefined" ? !item.done : done;
         const [rowsUpdated] = await Item.update(
-            { done },
+            { done: newDone },
             { where: { id: itemId } }
         );
+
         if (rowsUpdated === 0)
             throw new Error("Nenhum item encontrado com o ID fornecido.");
 
         const updatedItem = await Item.findByPk(itemId);
+        console.log(JSON.stringify(updatedItem));
         return {
             success: true,
             data: updatedItem,

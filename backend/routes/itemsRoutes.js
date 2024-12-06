@@ -62,16 +62,11 @@ router.put("/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id))
-            res.status(400).json({
+            return res.status(400).json({
                 error: "O parâmetro 'id' é obrigatório e deve ser inteiro",
             });
 
         const done = req.body.done;
-        if (typeof done !== "boolean")
-            return res.status(400).json({
-                error: "Os campo 'done' é obrigatório e deve ser booleano",
-            });
-
         const { success, data, error } = await updateItemStatus(id, done);
         if (!success) throw new Error(error);
         if (!data)
@@ -98,7 +93,7 @@ router.delete("/:id", async (req, res) => {
 
         const { success, error } = await removeItemFromList(id);
         if (!success) throw new Error(error);
-        
+
         res.status(200).json({ message: "Item removido com sucesso" });
     } catch (error) {
         console.error(`[${req.method} ${req.path}] Erro: ${error.message}`);

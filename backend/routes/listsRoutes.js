@@ -13,7 +13,8 @@ const {
 router.post("/", async (req, res) => {
     const { name, color } = req.body;
 
-    if (!name) res.status(400).json({ error: "O campo 'nome' é obrigatório" });
+    if (!name)
+        return res.status(400).json({ error: "O campo 'nome' é obrigatório" });
 
     try {
         const { success, data, error } = await insertList(
@@ -54,7 +55,7 @@ router.get("/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id))
-            res.status(400).json({
+            return res.status(400).json({
                 error: "O parâmetro 'id' é obrigatório e deve ser inteiro",
             });
 
@@ -74,7 +75,7 @@ router.put("/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id))
-            res.status(400).json({
+            return res.status(400).json({
                 error: "O parametro 'id' é obrigatório e deve ser inteiro",
             });
 
@@ -103,7 +104,7 @@ router.delete("/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id))
-            res.status(400).json({
+            return res.status(400).json({
                 error: "O parametro 'id' é obrigatório e deve ser inteiro",
             });
 

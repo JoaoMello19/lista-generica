@@ -7,7 +7,7 @@ function ItemBanner({ item, onItemClick, onDeleteItemClick }) {
                 className={`flex h-full w-full p-3 text-left rounded-l-md font-semibold overflow-hidden text-ellipsis whitespace-nowrap bg-white`}
                 style={{ color: item.color }}
                 onClick={() => {
-                    onItemClick(item.id);
+                    onItemClick(item);
                 }}
             >
                 {item.done ? (
@@ -40,12 +40,8 @@ export default function ItemContainer({
                 <ItemBanner
                     key={item.id}
                     item={item}
-                    onItemClick={() => {
-                        onItemClick(item.id);
-                    }}
-                    onDeleteItemClick={() => {
-                        onDeleteItemClick(item.id);
-                    }}
+                    onItemClick={onItemClick}
+                    onDeleteItemClick={onDeleteItemClick}
                 />
             ))}
         </div>
