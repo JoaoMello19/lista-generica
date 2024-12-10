@@ -13,10 +13,6 @@ const List = sequelize.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        color: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"), // Valor padrão para createdAt

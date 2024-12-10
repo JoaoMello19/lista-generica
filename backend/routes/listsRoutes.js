@@ -5,22 +5,18 @@ const {
     insertList,
     getAllLists,
     getListById,
-    getListsByColor,
     updateListById,
     deleteListById,
 } = require("../database/lists");
 
 router.post("/", async (req, res) => {
-    const { name, color } = req.body;
+    const { name } = req.body;
 
     if (!name)
         return res.status(400).json({ error: "O campo 'nome' é obrigatório" });
 
     try {
-        const { success, data, error } = await insertList(
-            name,
-            color || "#000000"
-        );
+        const { success, data, error } = await insertList(name, "#000000");
         if (!success) throw new Error(error);
 
         res.status(201).json({
@@ -35,10 +31,9 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const { name, color } = req.query;
+        const { name } = req.query;
         let response = [];
         if (name) response = await getListByName(name);
-        else if (color) response = await getListsByColor(color);
         else response = await getAllLists();
 
         const { success, data, error } = response;
@@ -79,13 +74,13 @@ router.put("/:id", async (req, res) => {
                 error: "O parametro 'id' é obrigatório e deve ser inteiro",
             });
 
-        const { name, color } = req.body;
-        if (!name && !color)
+        const { name } = req.body;
+        if (!name)
             return res.status(400).json({
-                error: "Informe pelo menos um campo para atualizar ('name' ou 'color').",
+                error: "Informe o novo nome para atualizar.",
             });
 
-        const { success, data, error } = await updateListById(id, name, color);
+        const { success, data, error } = await updateListById(id, name);
         if (!success) throw new Error(error);
         if (!data)
             return res.status(404).json({ error: "Lista não encontrada." });

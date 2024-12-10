@@ -5,15 +5,7 @@ function ListBanner({ list, onListClick, onDeleteListClick }) {
     return (
         <div className="flex">
             <button
-                className={`h-full aspect-[3/4] rounded-l-md`}
-                style={{ backgroundColor: list.color }}
-                onClick={() => {
-                    onListClick(list.id);
-                }}
-            />
-            <button
-                className={`w-full p-3 text-left font-semibold overflow-hidden text-ellipsis whitespace-nowrap bg-white`}
-                style={{ color: list.color }}
+                className={`h-full w-full p-3 rounded-l-md text-left font-semibold overflow-hidden text-ellipsis whitespace-nowrap bg-white`}
                 onClick={() => {
                     onListClick(list.id);
                 }}

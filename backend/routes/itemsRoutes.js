@@ -36,11 +36,10 @@ router.get("/:listid", async (req, res) => {
     try {
         const listId = parseInt(req.params.listid);
 
-        if (!listId) {
+        if (!listId)
             return res.status(400).json({
                 error: "O parâmetro 'listId' é obrigatório e deve ser válido",
             });
-        }
 
         const { success, data, error } = await getAllItemsFromList(listId);
         if (!success) throw new Error(error);
@@ -87,11 +86,11 @@ router.delete("/:id", async (req, res) => {
     try {
         const id = req.params.id;
         if (isNaN(id))
-            res.status(400).json({
+            return res.status(400).json({
                 error: "O parâmetro 'id' é obrigatório e deve ser inteiro",
             });
 
-        const { success, error } = await removeItemFromList(id);
+        const { success, error } = await removeItemFromList(parseInt(id));
         if (!success) throw new Error(error);
 
         res.status(200).json({ message: "Item removido com sucesso" });

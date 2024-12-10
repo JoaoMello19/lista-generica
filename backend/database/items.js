@@ -9,7 +9,7 @@ async function insertItemToList(listId, text) {
         if (!validateId(listId)) throw new Error("ID da lista inválido");
         if (!text) throw new Error("Texto do item inválido");
 
-        const newItem = await Item.create({ text, list_id: listId });
+        const newItem = await Item.create({ text, listId });
         return { success: true, data: newItem };
     } catch (error) {
         console.error("insertItemToList:", error.message);
@@ -21,7 +21,7 @@ async function getAllItemsFromList(listId) {
     try {
         if (!validateId(listId)) throw new Error("ID da lista inválido");
 
-        const items = await Item.findAll({ where: { list_id: listId } });
+        const items = await Item.findAll({ where: { listId } });
         return { success: true, data: items };
     } catch (error) {
         console.error("getAllItemsFromList:", error.message);
@@ -50,7 +50,6 @@ async function updateItemStatus(itemId, done) {
             throw new Error("Nenhum item encontrado com o ID fornecido.");
 
         const updatedItem = await Item.findByPk(itemId);
-        console.log(JSON.stringify(updatedItem));
         return {
             success: true,
             data: updatedItem,
@@ -61,12 +60,11 @@ async function updateItemStatus(itemId, done) {
     }
 }
 
-async function removeItemFromList(listId, itemId) {
+async function removeItemFromList(itemId) {
     try {
-        if (!validateId(listId)) throw new Error("ID da lista inválido");
         if (!validateId(itemId)) throw new Error("ID do item inválido");
 
-        await Item.destroy({ where: { id: itemId, list_id: listId } });
+        await Item.destroy({ where: { id: itemId } });
         return { success: true };
     } catch (error) {
         console.error("removeItemFromList:", error.message);

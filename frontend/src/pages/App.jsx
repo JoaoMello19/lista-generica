@@ -11,7 +11,10 @@ export default function App() {
     useEffect(() => {
         async function getLists() {
             await fetch("http://localhost:4000/lists/")
-                .then((response) => response.json())
+                .then((response) => {
+                    if (!response.ok) throw new Error("Erro ao buscar listas");
+                    return response.json();
+                })
                 .then(({ lists }) => {
                     setLists(lists);
                 })
@@ -36,9 +39,11 @@ export default function App() {
             body: JSON.stringify({ name }),
         })
             .then(async (response) => {
-                const data = await response.json();
                 if (!response.ok) throw new Error(data.error);
-                setUpdate((prev) => !prev);
+                return response.json();
+            })
+            .then(({ list, message }) => {
+                setLists((prev) => [...prev, list]);
             })
             .catch((err) => {
                 console.error("Erro ao inserir lista: " + err.message);
@@ -53,12 +58,12 @@ export default function App() {
             fetch(`http://localhost:4000/lists/${listId}`, {
                 method: "DELETE",
             })
-               .then(async (response) => {
+                .then(async (response) => {
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error);
-                    setUpdate((prev) =>!prev);
+                    setUpdate((prev) => !prev);
                 })
-               .catch((err) => {
+                .catch((err) => {
                     console.error("Erro ao excluir lista: " + err.message);
                 });
         }

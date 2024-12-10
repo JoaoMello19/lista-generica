@@ -4,20 +4,15 @@ function validateListId(listId) {
     return listId && typeof listId === "number" && listId > 0;
 }
 
-function validateColor(color) {
-    const regex = /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/;
-    return color && regex.test(color);
-}
-
-async function insertList(name, color) {
+async function insertList(name) {
     try {
         if (!name) throw new Error("Nome da lista inválido");
-        if (!validateColor(color)) throw new Error("Cor da lista inválida");
 
-        const newList = await List.create({ name, color });
-        const list = await getListById(newList.id);
+        const newList = await List.create({ name });
+        const { success, data, error } = await getListById(newList.id);
+        if (!success) throw new Error(error);
 
-        return { success: true, data: list };
+        return { success: true, data };
     } catch (error) {
         console.error("insertList:", error.message);
         return { success: false, error: error.message };
@@ -69,31 +64,19 @@ async function getListByName(name) {
     }
 }
 
-async function getListsByColor(color) {
-    try {
-        if (!validateColor(color)) throw new Error("Cor da lista inválida");
-        const lists = await getLists({ color });
-        return { success: true, data: lists };
-    } catch (error) {
-        console.error("getListByColor:", error.message);
-        return { success: false, error: error.message };
-    }
-}
-
-async function updateListById(listId, name, color) {
+async function updateListById(listId, name) {
     try {
         if (!validateListId(listId)) throw new Error("ID da lista inválido");
         if (!name) throw new Error("Nome da lista inválido");
-        if (!validateColor(color)) throw new Error("Cor da lista inválida");
 
         const [rowsUpdated] = await List.update(
-            { name, color },
+            { name },
             { where: { id: listId } }
         );
         if (rowsUpdated === 0)
             throw new Error("Nenhuma lista encontrada com o ID fornecido.");
 
-        const updatedList = await List.findByPk(listId);
+        const updatedList = await List.findByPk(listId, { include: Item });
         return {
             success: true,
             data: updatedList,
@@ -120,7 +103,6 @@ module.exports = {
     getAllLists,
     getListById,
     getListByName,
-    getListsByColor,
     updateListById,
     deleteListById,
 };
