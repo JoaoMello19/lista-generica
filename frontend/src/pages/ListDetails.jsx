@@ -1,9 +1,12 @@
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { SquareCheckIcon, SquareIcon } from "lucide-react";
+
 import Container from "../components/Container";
 import TopBanner from "../components/TopBanner";
-import { useEffect, useState } from "react";
-import ItemContainer from "../components/ItemContainer";
-import NewItemForm from "../components/NewItemForm";
+import DefaultForm from "../components/DefaultForm";
+import VerticalContainer from "../components/VerticalContainer";
+import { protectedScope } from "../utils/utils";
 
 export default function ListDetails() {
     const { id } = useParams();
@@ -11,95 +14,82 @@ export default function ListDetails() {
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        async function getList() {
-            await fetch(`http://localhost:4000/lists/${id}`)
-                .then((response) => {
-                    if (!response.ok) throw new Error("Erro ao buscar lista");
-                    return response.json();
-                })
-                .then(({ list }) => {
-                    setList(list);
-                })
-                .catch((error) => {
-                    console.error(
-                        `Erro ao buscar lista ${id}: ${error.message}`
-                    );
-                });
-        }
-        getList();
+        (() => {
+            protectedScope(async () => {
+                const response = await fetch(
+                    `http://localhost:4000/lists/${id}`
+                );
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+
+                setList(data.list);
+            }, "Erro ao buscar lista e itens");
+        })();
     }, []);
 
     async function addItem(event) {
         event.preventDefault();
 
-        const text = event.target.itemText.value;
+        const text = event.target.txtInput.value;
         if (!text) return;
 
-        await fetch("http://localhost:4000/items", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text, listId: list.id }),
-        })
-            .then(async (response) => {
-                if (!response.ok) throw new Error("Erro ao buscar lista");
-                return response.json();
-            })
-            .then(({ item }) => {
-                setList((prev) => {
-                    const updatedList = [...prev.items, item];
-                    return { ...prev, items: updatedList };
-                });
-            })
-            .catch((error) => {
-                console.error(`Erro ao inserir item: ${error.message}`);
+        protectedScope(async () => {
+            const response = await fetch("http://localhost:4000/items", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, listId: list.id }),
             });
-        event.target.itemText.value = "";
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setList((prev) => {
+                const updatedList = [...prev.items, data.item];
+                return { ...prev, items: updatedList };
+            });
+        }, "Erro ao adicionar item");
+
+        event.target.txtInput.value = "";
     }
 
     async function onItemClick(item) {
-        await fetch(`http://localhost:4000/items/${item.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ done: !item.done }),
-        })
-            .then(async (response) => response.json())
-            .then(({ item }) => {
-                setList((prev) => {
-                    const updatedList = prev.items.map((i) =>
-                        i.id === item.id ? { ...i, done: !i.done } : i
-                    );
-                    return { ...prev, items: updatedList };
-                });
+        protectedScope(async () => {
+            const response = await fetch(
+                `http://localhost:4000/items/${item.id}`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ done: !item.done }),
+                }
+            );
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setList((prev) => {
+                const updatedList = prev.items.map((i) =>
+                    i.id === item.id ? { ...i, done: !i.done } : i
+                );
+                return { ...prev, items: updatedList };
             });
+        }, "Erro ao alterar item");
     }
 
     async function onDeleteItemClick(itemId) {
-        await fetch(`http://localhost:4000/items/${itemId}`, {
-            method: "DELETE",
-        })
-            .then(async (response) => {
-                if (!response.ok) {
-                    throw new Error(`Erro ao excluir item ${itemId}`);
-                }
-                console.log(`Item ${itemId} excluído`);
-                setList((prev) => {
-                    const updatedList = prev.items.filter(
-                        (i) => i.id !== itemId
-                    );
-                    return { ...prev, items: updatedList };
-                });
-            })
-            .catch((error) => {
-                console.error(
-                    `Erro ao excluir item ${itemId}: ${error.message}`
-                );
+        protectedScope(async () => {
+            const response = await fetch(
+                `http://localhost:4000/items/${itemId}`,
+                { method: "DELETE" }
+            );
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setList((prev) => {
+                const updatedList = prev.items.filter((i) => i.id !== itemId);
+                return { ...prev, items: updatedList };
             });
+        }, "Erro ao excluir item");
     }
 
+    /* Funções da mudança de titulo */
     function handleTitleClick() {
         setIsEditing(true);
     }
@@ -111,27 +101,23 @@ export default function ListDetails() {
     }
 
     async function handleBlur(evt) {
-        await fetch("http://localhost:4000/lists/" + list.id, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: evt.target.value,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error("Erro ao salvar nome");
-                return response.json();
-            })
-            .then(({ list }) => {
-                setList(list);
-            })
-            .catch((error) => {
-                console.error(`Erro ao salvar nome: ${error.message}`);
-                setList((prev) => ({ ...prev, name: prev.name })); // Reset the title to its original value if saving fails.
-                setIsEditing(false);
-            });
+        protectedScope(async () => {
+            const response = await fetch(
+                `http://localhost:4000/lists/${list.id}`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: evt.target.value,
+                    }),
+                }
+            );
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setList(data.list);
+        }, "Erro ao alterar nome da lista");
+
         setIsEditing(false);
     }
 
@@ -163,12 +149,28 @@ export default function ListDetails() {
                     </h2>
                 )}
             </div>
-            <ItemContainer
-                items={(list && list.items) || []}
-                onItemClick={onItemClick}
-                onDeleteItemClick={onDeleteItemClick}
+            <VerticalContainer
+                objects={list?.items}
+                onBannerClick={onItemClick}
+                onDeleteClick={onDeleteItemClick}
+                content={(item) => {
+                    return (
+                        <>
+                            {item.done ? (
+                                <SquareCheckIcon className="mr-3" />
+                            ) : (
+                                <SquareIcon className="mr-3" />
+                            )}
+                            {item.text}
+                        </>
+                    );
+                }}
             />
-            <NewItemForm onSubmit={addItem}></NewItemForm>
+            <DefaultForm
+                onSubmit={addItem}
+                placeholder={"Novo item"}
+                buttonText={"ADICIONAR"}
+            />
         </Container>
     );
 }

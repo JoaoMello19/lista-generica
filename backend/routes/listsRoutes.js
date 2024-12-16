@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "O campo 'nome' é obrigatório" });
 
     try {
-        const { success, data, error } = await insertList(name, "#000000");
+        const { success, data, error } = await insertList(name);
         if (!success) throw new Error(error);
 
         res.status(201).json({

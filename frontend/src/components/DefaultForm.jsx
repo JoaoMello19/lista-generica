@@ -1,4 +1,4 @@
-export default function NewItemForm({ onSubmit }) {
+export default function DefaultForm({ onSubmit, placeholder, buttonText }) {
     return (
         <form
             onSubmit={onSubmit}
@@ -6,16 +6,16 @@ export default function NewItemForm({ onSubmit }) {
         >
             <input
                 type="text"
-                name="itemText"
+                name="txtInput"
                 className="w-4/5 pl-3 rounded-l-md outline-none"
-                placeholder="Novo item"
+                placeholder={placeholder}
                 autoComplete="off"
             />
             <button
                 type="submit"
                 className="w-1/5 min-w-fit px-4 py-2 rounded-r-md text-white font-bold bg-green-800"
             >
-                ADICIONAR
+                {buttonText}
             </button>
         </form>
     );

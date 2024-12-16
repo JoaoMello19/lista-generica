@@ -1,82 +1,86 @@
 import { useEffect, useState } from "react";
-import Container from "../components/Container";
-import ListContainer from "../components/ListContainer";
-import NewListForm from "../components/NewListForm";
+import { useNavigate } from "react-router-dom";
+
 import TopBanner from "../components/TopBanner";
+import Container from "../components/Container";
+import DefaultForm from "../components/DefaultForm";
+import VerticalContainer from "../components/VerticalContainer";
+import { protectedScope } from "../utils/utils";
 
 export default function App() {
     const [lists, setLists] = useState([]);
-    const [update, setUpdate] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        async function getLists() {
-            await fetch("http://localhost:4000/lists/")
-                .then((response) => {
-                    if (!response.ok) throw new Error("Erro ao buscar listas");
-                    return response.json();
-                })
-                .then(({ lists }) => {
-                    setLists(lists);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setLists([]);
-                });
-        }
-        getLists();
-    }, [update]);
+        (async () => {
+            protectedScope(async () => {
+                const response = await fetch("http://localhost:4000/lists");
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+
+                setLists(data.lists);
+            }, "Erro ao buscar listas");
+        })();
+    }, []);
 
     async function addList(event) {
         event.preventDefault();
-        const name = event.target.listName.value;
+        const name = event.target.txtInput.value;
         if (!name) return;
 
-        await fetch("http://localhost:4000/lists", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name }),
-        })
-            .then(async (response) => {
-                if (!response.ok) throw new Error(data.error);
-                return response.json();
-            })
-            .then(({ list, message }) => {
-                setLists((prev) => [...prev, list]);
-            })
-            .catch((err) => {
-                console.error("Erro ao inserir lista: " + err.message);
-            })
-            .finally(() => {
-                event.target.listName.value = "";
+        protectedScope(async () => {
+            const response = await fetch("http://localhost:4000/lists", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name }),
             });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setLists((prev) => [...prev, data.list]);
+            event.target.txtInput.value = "";
+        }, "Erro ao inserir lista");
     }
 
-    function onDeleteListClick(listId) {
+    async function onDeleteListClick(listId) {
         if (window.confirm("Deseja excluir esta lista?")) {
-            fetch(`http://localhost:4000/lists/${listId}`, {
-                method: "DELETE",
-            })
-                .then(async (response) => {
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error);
-                    setUpdate((prev) => !prev);
-                })
-                .catch((err) => {
-                    console.error("Erro ao excluir lista: " + err.message);
-                });
+            protectedScope(async () => {
+                const response = await fetch(
+                    `http://localhost:4000/lists/${listId}`,
+                    { method: "DELETE" }
+                );
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+
+                setLists((prev) => prev.filter((list) => list.id !== listId));
+            }, "Erro ao excluir lista");
         }
+    }
+
+    function onListClick(list) {
+        return navigate(`/list/${list.id}`);
     }
 
     return (
         <Container>
             <TopBanner text="Meu App de Listas" />
-            <ListContainer
-                lists={lists}
-                onDeleteListClick={onDeleteListClick}
+            <VerticalContainer
+                objects={lists}
+                onBannerClick={onListClick}
+                onDeleteClick={onDeleteListClick}
+                content={(list) =>
+                    `${list.name} (${list.items.length} ${
+                        list.items.length !== 1 ? "items" : "item"
+                    })`
+                }
             />
-            <NewListForm onSubmit={addList} />
+            <DefaultForm
+                onSubmit={addList}
+                placeholder={"Nova lista"}
+                buttonText={"CRIAR"}
+            />
         </Container>
     );
 }
